@@ -9,11 +9,13 @@ select * from productos;
 --- Dentro de ella, debes unir las tablas necesarias para obtener el nombre de la región y la suma total de las ventas (SUM(monto)). 
 
 WITH ventas_por_region AS (
-    SELECT
-        id_region,
-        SUM(cantidad) AS total_ventas
-    FROM ventas
-    GROUP BY id_region
+     SELECT
+        r.nombre,
+        SUM(v.monto) AS total_ventas
+    FROM ventas v
+    JOIN regiones r ON v.id_region = r.id_region
+    JOIN productos p ON v.id_producto = p.id_producto
+    GROUP BY r.nombre
 )
 
 SELECT
@@ -30,20 +32,19 @@ ORDER BY v.total_ventas DESC;
 
 WITH ventas_por_region AS (
     SELECT
-        id_region,
-        SUM(cantidad) AS total_ventas
-    FROM ventas
-    GROUP BY id_region
+        r.nombre,
+        SUM(v.monto) AS total_ventas
+    FROM ventas v
+    JOIN regiones r ON v.id_region = r.id_region
+    JOIN productos p ON v.id_producto = p.id_producto
+    GROUP BY r.nombre
 )
-
 SELECT
-    r.nombre,
-    v.total_ventas
-FROM regiones r
-JOIN ventas_por_region v
-    ON r.id_region = v.id_region
-WHERE v.total_ventas > (
+    nombre,
+    total_ventas
+FROM ventas_por_region
+WHERE total_ventas > (
     SELECT AVG(total_ventas)
     FROM ventas_por_region
 )
-ORDER BY v.total_ventas DESC;
+ORDER BY total_ventas DESC;
